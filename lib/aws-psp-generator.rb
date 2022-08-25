@@ -1,0 +1,6 @@
+require_relative 'aws-psp-generator/chef_property'
+require_relative 'aws-psp-generator/chef_resource'
+require_relative 'aws-psp-generator/constants'
+require_relative 'aws-psp-generator/errors'
+require_relative 'aws-psp-generator/runner'
+require_relative 'aws-psp-generator/version'

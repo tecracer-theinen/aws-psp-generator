@@ -1,0 +1,79 @@
+<%
+def indent(string, depth = 2)
+  return "" unless string
+
+  string.lines.map { |line| " " * depth + line.lstrip }.join
+end
+%># Import API specifics
+use 'awscc_base'
+
+resource_name :<%= resource.chef_name %>
+provides :<%= resource.chef_name %>, target_mode: true, platform: 'aws'
+
+description <<~DESCRIPTION
+  <%= resource.description %>
+DESCRIPTION
+
+<% if (resource.arity == 0 || resource.generated_identity?) %>
+property :name, String,
+         name_property: true,
+         description: 'Name of the resource, not desired state'
+<% elsif resource.arity == 1
+  identity_property = property(identity_attributes.first)
+%>
+property :<%= identity_property.property_name %>, <%= identity_property.type %>,
+         name_property: true,
+         description: '<%= identity_property.description %>'
+<% else
+  resource.identity_properties.each do |property_name| %>
+property :<%= property_name %>, String,
+         required: true,
+         description: 'An identity attribute'
+<% end %>
+<% end %>
+
+<% resource.properties&.each do |property| %>
+property :<%= property.property_name %>, <%= property.type %>,
+<% if property.property_name == 'name' %>
+         name_property: true,
+<% end %>
+<% if property.required %>
+         required: true,
+<% end %>
+<% unless property.type_validations.empty? %>
+         callbacks: {
+           <%= indent(property.type_validations, 11).lstrip %>         },
+<% end %>
+<% if property.description.nil? %>
+         description: ''
+<% elsif property.description.lines.count > 1 || property.description.include?("'") %>
+         description: <<~'DESCRIPTION'
+           <%= indent(property.description, 6).lstrip %>
+         DESCRIPTION
+<% elsif property.description.lines.one? %>
+         description: '<%= property.description %>'
+<% else %>
+         description: ''
+<% end %>
+
+<% end %>
+# API URLs and mappings
+rest_api_collection '/<%= resource.api_name %>'
+rest_api_document '/<%= resource.api_name %>'
+
+rest_property_map ({
+<%=
+  mapping = resource.mapping
+
+  max_length = mapping.keys.count == 0 ? {} : mapping.keys.max { |a, b| a.length <=> b.length }.length
+  mapping.map do |chef_name, api_name|
+    "  #{(chef_name + ':').ljust(max_length + 1)} '#{api_name}',"
+  end.join("\n")
+%>
+})
+
+<% if resource.post_only_properties? %>
+rest_post_only_properties %i[
+  <%= resource.post_only_properties.join(' ') %>
+]
+<% end %>

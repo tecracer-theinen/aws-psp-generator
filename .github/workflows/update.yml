@@ -1,0 +1,56 @@
+name: Update Resources
+
+on:
+  schedule:
+    - cron: 55 23 * * *
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Ruby 3.0
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 3.0.x
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+          fetch-depth: 0
+      - name: Install dependencies
+        run: bundle install
+      - name: Run PSP generator and bump version, if needed
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          bin/aws-psp-generator changelog --newer-than $(date --date="00:00" --iso-8601=seconds) > updates.tmp
+          if [ -s updates.tmp ]; then
+            (
+              NEW=$(bump patch --value-only --no-commit)
+              echo -e "# CHANGELOG\n"
+              echo -e "## v$NEW\n\n"
+              cat updates.tmp
+              cat CHANGELOG.md | tail -n +2
+            ) > CHANGELOG.new
+            mv CHANGELOG.new CHANGELOG.md
+            ./bin/aws-psp-generator generate-all --newer-than $(date --date="00:00" --iso-8601=seconds)
+          fi
+
+          export NUM_RESOURCES=$(ls resources/aws_*.rb | wc -l)
+          export LAST_BUILD=$(date +%Y%m%d)
+          sed --in-place README.md --file - <<SED
+          s/AWS%20Resources-.*$/AWS%20Resources-${NUM_RESOURCES}-orange)/;
+          s/Last%20build-.*$/Last%20build-${LAST_BUILD}-grey)/;
+          SED
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated Change
+          file_pattern: resources/*.rb CHANGELOG.md README.md
+          repository: .
+          commit_user_name: AWSome Bot
+          commit_user_email: opensource@tecracer.de
+          commit_author: AWSome Bot <opensource@tecracer.de>
