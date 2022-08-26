@@ -46,12 +46,10 @@ property :<%= property.property_name %>, <%= property.type %>,
 <% end %>
 <% if property.description.nil? %>
          description: ""
-<% elsif property.description.lines.count > 1 || property.description.include?("'") %>
+<% elsif property.description.is_a? String %>
          description: <<~'DESCRIPTION'
            <%= indent(property.description, 6).lstrip %>
          DESCRIPTION
-<% elsif property.description.lines.one? %>
-         description: "<%= property.description %>"
 <% else %>
          description: ""
 <% end %>
@@ -73,7 +71,7 @@ rest_property_map({
 })
 
 <% if resource.post_only_properties? %>
-rest_post_only_properties %i[
+rest_post_only_properties %i{
   <%= resource.post_only_properties.join(" ") %>
-]
+}
 <% end %>

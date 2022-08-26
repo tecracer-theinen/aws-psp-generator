@@ -132,7 +132,7 @@ module AwsPspGenerator
       output += "\"#{prefix} is not one of the allowed values\" => lambda { |v| %w{#{allowed_values.join(' ')}}.include? #{tocheck} },\n" if allowed
 
       # ARN
-      output += "\"#{prefix}is not a valid ARN\" => lambda { |v| #{tocheck} =~ Regexp.new('#{ARN_PATTERN}') },\n" if subkey&.end_with?('Arn')
+      output += "\"#{prefix}is not a valid ARN\" => lambda { |v| #{tocheck} =~ Regexp.new(\"#{ARN_PATTERN}\") },\n" if subkey&.end_with?('Arn')
 
       if (enum = definition['enum'])
         output += "\"#{prefix}is not one of `#{enum.join('`, `')}`\" => lambda { |v| %w{#{enum.join(' ')}}.include? #{tocheck} },\n"

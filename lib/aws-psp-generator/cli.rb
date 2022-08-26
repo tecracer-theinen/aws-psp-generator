@@ -137,9 +137,9 @@ module AwsPspGenerator
         chef_resource.process runner.cfn_typedata(api_name)
 
         if exist?(api_name)
-          say "- Update #{chef_resource}"
+          say "- Update #{api_name}"
         else
-          say "- Add #{chef_resource}"
+          say "- Add #{api_name}"
         end
 
         runner.write_definition(chef_resource)

@@ -58,6 +58,9 @@ module AwsPspGenerator
       # Exponential Backoff: 1 -> 2 -> 4 -> 8 -> 16 -> 32 sec
       sleep(2**retry_counter)
       retry
+    rescue Aws::CloudFormation::Errors::TypeNotFoundException
+      logger.error "Unknown type #{api_name}"
+      exit EXIT_USAGE
     end
 
     def filename(api_name)
