@@ -87,7 +87,18 @@ module AwsPspGenerator
     end
 
     def cfn
+      check_aws_credentials! unless @cfn
+
       @cfn ||= Aws::CloudFormation::Client.new
+    end
+
+    def check_aws_credentials!
+      sts = Aws::STS::Client.new
+      ci = sts.get_caller_identity
+      logger.info "AWS Account #{ci.account}"
+    rescue Aws::Errors::MissingCredentialsError
+      logger.error 'No AWS credentials found'
+      exit 1
     end
   end
 end

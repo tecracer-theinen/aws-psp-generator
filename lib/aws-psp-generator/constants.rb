@@ -7,4 +7,6 @@ module AwsPspGenerator
   BACKOFF_LIMIT   = 120
 
   RESOURCES_DIR = 'resources/'.freeze
+
+  EXIT_USAGE = 64.freeze
 end

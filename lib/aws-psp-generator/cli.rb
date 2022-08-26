@@ -52,7 +52,7 @@ module AwsPspGenerator
         no_earlier_than && runner.last_update(api_name) >= no_earlier_than
       rescue Date::Error
         puts 'Option --newer-than must match pattern `%Y-%m-%dT%H:%M:%S`'
-        exit 64
+        exit EXIT_USAGE
       end
 
       def exist?(api_name)
@@ -73,11 +73,20 @@ module AwsPspGenerator
         old_contents != new_contents
       end
 
-      def assure_cookbook_directory
+      def check_cookbook_directory!
         return if cookbook_directory?
 
-        puts 'Must execute in a cookbook directory (i.e. metadata.rb must exist)'
-        exit 64
+        say 'Must execute in a cookbook directory (i.e. metadata.rb must exist)'
+        exit EXIT_USAGE
+      end
+
+      def check_aws_type!(name)
+        valid = name =~ /^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$/
+
+        unless valid
+          say "Invalid type name #{name}"
+          exit EXIT_USAGE
+        end
       end
 
       def cookbook_directory?
@@ -110,6 +119,8 @@ module AwsPspGenerator
 
     desc 'render RESOURCE', 'Output code for a specific AWS resource'
     def render(api_name)
+      check_aws_type!(api_name)
+
       chef_resource = ChefResource.new
       chef_resource.process runner.cfn_typedata(api_name)
 
@@ -118,11 +129,18 @@ module AwsPspGenerator
 
     desc 'generate RESOURCE [RESOURCE2] [...]', 'Generate resource DSL for given AWS resource types'
     def generate(*api_names)
-      assure_cookbook_directory
+      api_names.each { |api_name| check_aws_type!(api_name) }
+      check_cookbook_directory!
 
       api_names.each do |api_name|
         chef_resource = ChefResource.new
         chef_resource.process runner.cfn_typedata(api_name)
+
+        if exist?(api_name)
+          say "- Update #{chef_resource}"
+        else
+          say "- Add #{chef_resource}"
+        end
 
         runner.write_definition(chef_resource)
       end
@@ -138,9 +156,9 @@ module AwsPspGenerator
         next unless changed?(api_name)
 
         if exist?(api_name)
-          say "- Update #{chef_resource}"
+          say "- Update #{api_name}"
         else
-          say "- Add #{chef_resource}"
+          say "- Add #{api_name}"
         end
       end
     end
@@ -149,7 +167,7 @@ module AwsPspGenerator
     method_option :skip_existing, desc: 'Skip existing resources', type: :boolean, default: false
     method_option :newer_than, desc: 'Only resources changed after date', type: :string, default: ''
     def generate_all
-      assure_cookbook_directory
+      check_cookbook_directory!
 
       render_resources.each do |aws_resource_data|
         api_name = aws_resource_data.type_name

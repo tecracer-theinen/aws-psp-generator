@@ -126,16 +126,16 @@ module AwsPspGenerator
       output += "\"#{prefix} needs to be #{min}..#{max} characters\" => lambda { |v| #{tocheck}.length >= #{min} && #{tocheck}.length <= #{max} },\n" if max && min
 
       pattern = definition['pattern']
-      output += "\"#{prefix} must match pattern #{pattern}\" => lambda { |v| #{tocheck} =~ Regexp.new('/#{pattern}/') },\n" if pattern
+      output += "\"#{prefix} must match pattern #{pattern}\" => lambda { |v| #{tocheck} =~ Regexp.new(\"/#{pattern}/\") },\n" if pattern
 
       allowed = definition['allowedValues']
-      output += "\"#{prefix} is not one of the allowed values\" => lambda { |v| %w[#{allowed_values.join(' ')}].include? #{tocheck} },\n" if allowed
+      output += "\"#{prefix} is not one of the allowed values\" => lambda { |v| %w{#{allowed_values.join(' ')}}.include? #{tocheck} },\n" if allowed
 
       # ARN
       output += "\"#{prefix}is not a valid ARN\" => lambda { |v| #{tocheck} =~ Regexp.new('#{ARN_PATTERN}') },\n" if subkey&.end_with?('Arn')
 
       if (enum = definition['enum'])
-        output += "\"#{prefix}is not one of `#{enum.join('`, `')}`\" => lambda { |v| %w[#{enum.join(' ')}].include? #{tocheck} },\n"
+        output += "\"#{prefix}is not one of `#{enum.join('`, `')}`\" => lambda { |v| %w{#{enum.join(' ')}}.include? #{tocheck} },\n"
       end
 
       # no validator
