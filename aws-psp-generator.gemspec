@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   }
 
   spec.add_dependency 'aws-sdk-cloudformation', '~> 1.70'
-  spec.add_dependency 'bump', '~> 0.9'
+  spec.add_dependency 'bump', '~> 0.10'
   spec.add_dependency 'erubis', '~> 2.7'
   spec.add_dependency 'fylla', '~> 0.5'
   spec.add_dependency 'thor', '~> 1.0'

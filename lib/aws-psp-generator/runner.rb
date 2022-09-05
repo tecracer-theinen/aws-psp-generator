@@ -16,6 +16,7 @@ module AwsPspGenerator
 
     attr_reader :aws_resource
     attr_writer :cfn
+    attr_writer :logger
 
     def list_resources
       available_resources.map(&:type_name)

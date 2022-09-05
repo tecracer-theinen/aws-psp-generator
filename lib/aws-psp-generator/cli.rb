@@ -149,6 +149,8 @@ module AwsPspGenerator
     desc 'changelog', 'Generate changelog output'
     method_option :newer_than, desc: 'Only resources changed after date', type: :string, default: ''
     def changelog
+      runner.logger.level = Logger::ERROR
+
       render_resources.each do |aws_resource_data|
         api_name = aws_resource_data.type_name
         chef_resource = runner.chef_resource(api_name)
