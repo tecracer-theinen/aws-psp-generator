@@ -3,11 +3,11 @@ module AwsPspGenerator
     module Utils
       SERVICENAMES = %w[
         ApiGateway AppFlow AppStream AppSync AuditManager AutoScaling CloudFormation CloudTrail
-        CloudWatch CodeArtifact CodeGuru CodeStar DataBrew DataSync DynamoDB DevOpsGuru
-        ElastiCache ElasticLoadBalancer GameLift GroundStation ImageBuilder
-        IoT SiteWise TwinMaker LakeFormation LicenseManager MediaConnect
+        CloudWatch CloudFront CodeArtifact CodeGuru CodeStar DataBrew DataSync DynamoDB DevOpsGuru
+        ElastiCache ElasticLoadBalancer ElasticLoadBalancingV2 GameLift GlobalAccelerator GroundStation ImageBuilder
+        IoT SiteWise TwinMaker LakeFormation LicenseManager MediaConnect S3ObjectLamba S3Outposts
         MediaPackage MediaTailor MemoryDB NetworkFirewall NetworkInsights NetworkManager
-        QuickSight ResilienceHub RoboMaker SageMaker ServiceCatalog StepFunctions
+        QuickSight RefactorSpaces ResilienceHub RoboMaker Route53Resolver SageMaker ServiceCatalog StepFunctions
         TransitGateway WAFv2 XRay
       ].freeze
 
