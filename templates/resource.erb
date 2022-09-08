@@ -7,6 +7,7 @@ end
 %># Import API specifics
 use "awscc_base"
 
+unified_mode true
 resource_name :<%= resource.chef_name %>
 provides :<%= resource.chef_name %>, target_mode: true, platform: "aws"
 
@@ -37,7 +38,7 @@ property :<%= property.property_name %>, <%= property.type %>,
 <% if property.property_name == "name" %>
          name_property: true,
 <% end %>
-<% if property.required %>
+<% if property.required && property.property_name != "name" %>
          required: true,
 <% end %>
 <% unless property.type_validations.empty? %>
