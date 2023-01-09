@@ -1,5 +1,7 @@
 # AWS PSP Generator
 
+[![Views](http://hits.dwyl.com/tecracer-theinen/aws-psp.svg)](http://hits.dwyl.com/tecracer-theinen/aws-psp})
+
 Generates Chef resources out of AWS API definitions. Used in the [AWS Platform Support Pack](https://supermarket.chef.io/cookbooks/aws-psp) workflow.
 
 ## Details
